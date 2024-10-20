@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Language Recognition</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+        #videoElement {
+            border: 2px solid #ccc;
+            width: 640px;
+            height: 480px;
+        }
+        #recognizedText {
+            font-size: 24px;
+            margin-top: 20px;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <h1>Sign Language Recognition</h1>
+
+    <!-- Camera feed for hand tracking -->
+    <video id="videoElement" autoplay muted></video>
+
+    <!-- Container for recognized text -->
+    <h2 id="recognizedText">Waiting for Sign...</h2>
+
+    <!-- Load MediaPipe Hands and TensorFlow.js -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+    <script src="scripts.js"></script> <!-- Custom script for gesture recognition -->
+</body>
+</html>
