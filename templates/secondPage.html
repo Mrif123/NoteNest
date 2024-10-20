@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google Keep Clone</title>
+    <style>
+        /* Your existing styles... */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        .sidebar {
+            width: 250px;
+            background-color: #f9f9f9;
+            padding: 20px;
+            position: fixed;
+            height: 100vh;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar .logo {
+            display: flex;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .sidebar .logo img {
+            width: 40px;
+            margin-right: 10px;
+        }
+
+        .sidebar .logo h1 {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+            margin: 0;
+        }
+
+        .sidebar a {
+            display: block;
+            padding: 10px 0;
+            color: #000;
+            text-decoration: none;
+            font-size: 18px;
+            cursor: pointer;
+        }
+
+        .sidebar a:hover {
+            background-color: #eaeaea;
+        }
+
+        .main-content {
+            margin-left: 270px;
+            padding: 20px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+            background-color: #f9f9f9;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .header input {
+            width: 500px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 25px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            font-size: 16px;
+        }
+
+        .note-box {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            background-color: #fff;
+            width: 500px;
+            margin: 0 auto;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            cursor: pointer;
+        }
+
+        .note-box.expanded {
+            padding-bottom: 20px;
+        }
+
+        .note-box input, .note-box textarea {
+            border: none;
+            outline: none;
+            width: 90%;
+            font-size: 16px;
+            background-color: transparent;
+        }
+
+        .note-box textarea {
+            resize: none;
+            height: 40px;
+            margin-bottom: 10px;
+        }
+
+        .note-title {
+            display: none;
+            margin-bottom: 5px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .note-box.expanded .note-title {
+            display: block;
+        }
+
+        .note-actions {
+            display: none;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .note-box.expanded .note-actions {
+            display: flex;
+        }
+
+        .note-actions img {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        .tooltip {
+            display: none;
+            position: absolute;
+            background-color: #333;
+            color: #fff;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 14px;
+            z-index: 10;
+            white-space: nowrap;
+        }
+
+        .tooltip-icon:hover + .tooltip {
+            display: block;
+        }
+
+        .empty-state {
+            margin-top: 50px;
+            text-align: center;
+            color: #ccc;
+            font-size: 24px;
+        }
+
+        .notes-container {
+            display: none;
+            max-width: 700px;
+            margin: 0 auto;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .notes-list {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .notes-list .note-item {
+            background-color: #fff;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 10px;
+            margin-bottom: 10px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            width: 90%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            text-align: left;
+        }
+
+        .delete-note, .edit-note {
+            cursor: pointer;
+            width: 20px;
+            height: 20px;
+        }
+
+        .delete-note:hover, .edit-note:hover {
+            opacity: 0.7;
+        }
+
+        .note-date-time {
+            font-size: 12px;
+            color: #888;
+        }
+
+        /* Add styles for the uploaded image preview */
+        .note-image {
+            max-width: 100px;
+            max-height: 100px;
+            margin-top: 10px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <div class="logo">
+            <img src="img/google-keep.png" alt="App Logo">
+            <h1>Note Nest</h1>
+        </div>
+
+        <a id="notesLink">Notes</a>
+        <a id="remindersLink">Reminders</a>
+    </div>
+
+    <div class="main-content">
+        <div class="header">
+            <input type="text" placeholder="Search">
+            <div>
+                <img src="img/profile-user.png" alt="Profile" style="width: 40px; border-radius: 50%;">
+            </div>
+        </div><br><br>
+
+        <div class="note-box" id="noteBox">
+            <input type="text" class="note-title" id="noteTitle" placeholder="Title">
+            <textarea id="noteInput" placeholder="Take a note..."></textarea>
+            <div class="note-actions">
+                <div class="icons">
+                    <img src="img/notification.png" style="margin-right: 20px;" class="tooltip-icon" id="reminderIcon">
+                    <span class="tooltip">Add Reminder</span>
+                    <img src="img/writing.png" style="margin-right: 20px;" class="tooltip-icon" id="addNoteIcon">
+                    <span class="tooltip">Add Notes</span>
+                    <input type="file" id="imageUpload" style="display: none;" accept="image/*">
+                    <img src="img/photo.png" id="addImageIcon" style="margin-right: 20px;" class="tooltip-icon">
+                    <span class="tooltip">Add Image</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="empty-state" id="emptyState">
+            <span>💡</span>
+            <p>Notes you add appear here</p>
+        </div>
+
+        <div class="notes-container" id="notesContainer">
+            <div class="notes-list" id="notesList"></div>
+        </div>
+
+    </div>
+
+    <!-- Include the audio file -->
+    <audio id="reminderAudio" src="alert1.mp3" preload="auto"></audio>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const noteBox = document.getElementById('noteBox');
+            const noteInput = document.getElementById('noteInput');
+            const noteTitle = document.getElementById('noteTitle');
+            const notesList = document.getElementById('notesList');
+            const notesContainer = document.getElementById('notesContainer');
+            const emptyState = document.getElementById('emptyState');
+            const imageUpload = document.getElementById('imageUpload');
+            const addImageIcon = document.getElementById('addImageIcon');
+            let uploadedImage = '';  // To store the image URL
+
+            let notes = JSON.parse(localStorage.getItem('notes')) || [];
+
+            noteBox.addEventListener('click', function () {
+                noteBox.classList.add('expanded');
+                noteTitle.style.display = 'block';
+                noteInput.style.height = '100px';
+                document.querySelector('.note-actions').style.display = 'flex';
+            });
+
+            noteInput.addEventListener('blur', function () {
+                if (noteInput.value.trim() === '' && noteTitle.value.trim() === '') {
+                    noteBox.classList.remove('expanded');
+                    noteTitle.style.display = 'none';
+                    noteInput.style.height = '40px';
+                    document.querySelector('.note-actions').style.display = 'none';
+                }
+            });
+
+            addImageIcon.addEventListener('click', function () {
+                imageUpload.click();
+            });
+
+            imageUpload.addEventListener('change', function (event) {
+                const file = event.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function (e) {
+                        uploadedImage = e.target.result;
+                        // Optionally display the image immediately
+                        createNote();
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+
+            function createNote() {
+                const title = noteTitle.value.trim();
+                const content = noteInput.value.trim();
+
+                if (title || content || uploadedImage) {
+                    const note = {
+                        title: title,
+                        content: content,
+                        image: uploadedImage,
+                        date: new Date().toLocaleString(),
+                    };
+                    notes.push(note);
+                    localStorage.setItem('notes', JSON.stringify(notes));
+                    displayNotes();
+                    resetNoteBox();
+                }
+            }
+
+            function displayNotes() {
+                notesList.innerHTML = '';
+                notes.forEach((note, index) => {
+                    const noteItem = document.createElement('div');
+                    noteItem.className = 'note-item';
+                    noteItem.innerHTML = `
+                        <div>
+                            <strong>${note.title || 'Untitled'}</strong><br>
+                            <p>${note.content}</p>
+                            ${note.image ? `<img src="${note.image}" class="note-image" alt="Uploaded Image">` : ''}
+                            <div class="note-date-time">${note.date}</div>
+                        </div>
+                        <div>
+                            <img src="img/delete.png" class="delete-note" data-index="${index}">
+                        </div>
+                    `;
+                    notesList.appendChild(noteItem);
+                });
+
+                if (notes.length > 0) {
+                    notesContainer.style.display = 'block';
+                    emptyState.style.display = 'none';
+                } else {
+                    notesContainer.style.display = 'none';
+                    emptyState.style.display = 'block';
+                }
+            }
+
+            notesList.addEventListener('click', function (event) {
+                if (event.target.classList.contains('delete-note')) {
+                    const index = event.target.getAttribute('data-index');
+                    notes.splice(index, 1);
+                    localStorage.setItem('notes', JSON.stringify(notes));
+                    displayNotes();
+                }
+            });
+
+            function resetNoteBox() {
+                noteTitle.value = '';
+                noteInput.value = '';
+                uploadedImage = '';  // Reset the uploaded image
+                imageUpload.value = '';  // Clear the input for the image
+                noteBox.classList.remove('expanded');
+                noteTitle.style.display = 'none';
+                noteInput.style.height = '40px';
+                document.querySelector('.note-actions').style.display = 'none';
+            }
+
+            displayNotes();  // Load notes on page load
+        });
+    </script>
+
+</body>
+</html>
