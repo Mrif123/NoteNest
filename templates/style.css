@@ -1,0 +1,188 @@
+.desktop {
+    background-color: #ffffff;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    width: 100%;
+  }
+  
+  .desktop .div {
+    background-color: #ffffff;
+    width: 1440px;
+    height: 1024px;
+    position: relative;
+  }
+  
+  .desktop .overlap {
+    position: absolute;
+    width: 1440px;
+    height: 488px;
+    top: 92px;
+    left: 0;
+  }
+  
+  .desktop .rectangle {
+    position: absolute;
+    width: 1440px;
+    height: 317px;
+    top: 171px;
+    left: 0;
+    background-color: #e8eff1;
+  }
+  
+  .desktop .text-wrapper {
+    position: absolute;
+    width: 1148px;
+    top: 0;
+    left: 221px;
+    font-family: "Inter-Bold", Helvetica;
+    font-weight: 700;
+    color: #000000;
+    font-size: 140px;
+    letter-spacing: 0;
+    line-height: normal;
+  }
+  
+  .desktop .overlap-group {
+    position: absolute;
+    width: 456px;
+    height: 444px;
+    top: 580px;
+    left: 0;
+    background-color: #fadcd6;
+  }
+  
+  .desktop .overlap-2 {
+    position: absolute;
+    width: 212px;
+    height: 116px;
+    top: 31px;
+    left: 146px;
+  }
+  
+  .desktop .text-wrapper-2 {
+    position: absolute;
+    width: 212px;
+    top: 0;
+    left: 0;
+    font-family: "Inter-Regular", Helvetica;
+    font-weight: 400;
+    color: #000000;
+    font-size: 50px;
+    letter-spacing: 0;
+    line-height: normal;
+  }
+  
+  .desktop .line {
+    width: 142px;
+    top: 75px;
+    left: 3px;
+    position: absolute;
+    height: 2px;
+    object-fit: cover;
+  }
+  
+  .desktop .blind {
+    position: absolute;
+    width: 150px;
+    height: 150px;
+    top: 180px;
+    left: 153px;
+    object-fit: cover;
+  }
+  
+  .desktop .overlap-3 {
+    position: absolute;
+    width: 507px;
+    height: 444px;
+    top: 580px;
+    left: 456px;
+    background-color: #d9d9d9;
+  }
+  
+  .desktop .overlap-4 {
+    position: absolute;
+    width: 216px;
+    height: 116px;
+    top: 31px;
+    left: 188px;
+  }
+  
+  .desktop .text-wrapper-3 {
+    position: absolute;
+    width: 212px;
+    top: 0;
+    left: 4px;
+    font-family: "Inter-Regular", Helvetica;
+    font-weight: 400;
+    color: #000000;
+    font-size: 50px;
+    letter-spacing: 0;
+    line-height: normal;
+  }
+  
+  .desktop .img {
+    width: 142px;
+    top: 76px;
+    left: 0;
+    position: absolute;
+    height: 2px;
+    object-fit: cover;
+  }
+  
+  .desktop .deafness {
+    position: absolute;
+    width: 150px;
+    height: 150px;
+    top: 180px;
+    left: 192px;
+    object-fit: cover;
+  }
+  
+  .desktop .overlap-5 {
+    position: absolute;
+    width: 477px;
+    height: 444px;
+    top: 580px;
+    left: 963px;
+    background-color: #b6d1d9;
+  }
+  
+  .desktop .overlap-6 {
+    position: absolute;
+    width: 342px;
+    height: 117px;
+    top: 31px;
+    left: 121px;
+  }
+  
+  .desktop .PHYSICALLY-DISABLED {
+    position: absolute;
+    width: 342px;
+    top: 0;
+    left: 0;
+    font-family: "Inter-Regular", Helvetica;
+    font-weight: 400;
+    color: #000000;
+    font-size: 45px;
+    letter-spacing: 0;
+    line-height: normal;
+  }
+  
+  .desktop .line-2 {
+    width: 279px;
+    top: 115px;
+    left: 2px;
+    position: absolute;
+    height: 2px;
+    object-fit: cover;
+  }
+  
+  .desktop .disability {
+    position: absolute;
+    width: 150px;
+    height: 163px;
+    top: 180px;
+    left: 189px;
+    object-fit: cover;
+  }

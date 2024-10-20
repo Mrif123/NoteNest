@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notes</title>
+    <link rel="stylesheet" href="globals.css" />
+    <link rel="stylesheet" href="style.css" />
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 20px;
+        }
+        h1 {
+            color: #333;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        li {
+            background-color: #fff;
+            margin: 5px 0;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+        }
+        li a {
+            color: #d9534f;
+            text-decoration: none;
+            margin-left: 10px;
+        }
+        form input, form textarea {
+            width: 100%;
+            padding: 8px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        form button {
+            padding: 10px 15px;
+            background-color: #5cb85c;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        form button:hover {
+            background-color: #4cae4c;
+        }
+        .overlap, .overlap-group, .overlap-3, .overlap-5 {
+            margin-top: 30px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Section from the first file -->
+    <h1>Welcome to My Flask App!</h1>
+    <p>This is a dynamic web application using Flask.</p>
+    <h1>Welcome, {{ user_email }}</h1>
+    <h2>Your Notes:</h2>
+    <ul>
+        {% for note in notes %}
+        <li>
+            <strong>{{ note[1] }}</strong>: {{ note[2] }}
+            <a href="{{ url_for('delete_note', id=note[0]) }}">Delete</a>
+        </li>
+        {% endfor %}
+    </ul>
+    <h2>Add a New Note:</h2>
+    <form action="{{ url_for('add_note') }}" method="POST">
+        <input type="text" name="title" placeholder="Title" required><br>
+        <textarea name="content" placeholder="Content"></textarea><br>
+        <button type="submit">Add Note</button>
+    </form>
+
+    <!-- Section from the second file -->
+    <div class="desktop">
+        <div class="div">
+            <div class="overlap">
+                <div class="rectangle"></div>
+                <div class="text-wrapper">Learn Smarter, Note Better.</div>
+            </div>
+            <div class="overlap-group">
+                <div class="overlap-2">
+                    <div class="text-wrapper-2">BLIND</div>
+                    <img class="line" src="img/line-1.svg" />
+                </div>
+                <img class="blind" src="img/blind (1).png" />
+            </div>
+            <div class="overlap-3">
+                <div class="overlap-4">
+                    <div class="text-wrapper-3">DEAF</div>
+                    <img class="img" src="img/line-3.svg" />
+                </div>
+                <img class="deafness" src="img/deafness.png" />
+            </div>
+            <div class="overlap-5">
+                <div class="overlap-6">
+                    <div class="PHYSICALLY-DISABLED">PHYSICALLY&nbsp;&nbsp;&nbsp;&nbsp; DISABLED</div>
+                    <img class="line-2" src="img/line-2.svg" />
+                </div>
+                <img class="disability" src="img/disability.png" />
+            </div>
+        </div>
+    </div>
+</body>
+</html>
