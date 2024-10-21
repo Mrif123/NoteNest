@@ -1,11 +1,65 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Google Keep Clone</title>
+    <title>NoteNest</title>
     <style>
         /* Your existing styles... */
+        .widget-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 300px;
+            height: 250px;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            color: white;
+            overflow: hidden;
+            cursor: move;
+            z-index: 1000;
+        }
+
+        /* Title bar for dragging */
+        .widget-header {
+            background-color: #333;
+            padding: 10px;
+            cursor: move;
+            text-align: center;
+        }
+
+        .widget-header h2 {
+            font-size: 16px;
+            margin: 0;
+        }
+
+        /* Canvas for visualizer */
+        canvas {
+            width: 100%;
+            height: 150px;
+            border: 0;
+        }
+
+        /* Close button */
+        .close-btn {
+            position: absolute;
+            top: 5px;
+            right: 10px;
+            color: white;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        /* Real-time captions */
+        .captions {
+            padding: 10px;
+            font-size: 14px;
+            color: #00ff00;
+            background: #111;
+        }
+
         body {
             font-family: Arial, sans-serif;
             margin: 0;
@@ -71,8 +125,13 @@
             padding: 10px;
             border: 1px solid #ccc;
             border-radius: 25px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
             font-size: 16px;
+        }
+
+        #userEmail {
+            font-size: 16px;
+            font-weight: bold;
         }
 
         .note-box {
@@ -83,7 +142,7 @@
             background-color: #fff;
             width: 500px;
             margin: 0 auto;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
             cursor: pointer;
         }
 
@@ -91,7 +150,8 @@
             padding-bottom: 20px;
         }
 
-        .note-box input, .note-box textarea {
+        .note-box input,
+        .note-box textarea {
             border: none;
             outline: none;
             width: 90%;
@@ -106,7 +166,6 @@
         }
 
         .note-title {
-            display: none;
             margin-bottom: 5px;
             font-size: 18px;
             font-weight: bold;
@@ -117,7 +176,6 @@
         }
 
         .note-actions {
-            display: none;
             justify-content: space-between;
             align-items: center;
         }
@@ -144,7 +202,7 @@
             white-space: nowrap;
         }
 
-        .tooltip-icon:hover + .tooltip {
+        .tooltip-icon:hover+.tooltip {
             display: block;
         }
 
@@ -175,7 +233,7 @@
             border-radius: 5px;
             padding: 10px;
             margin-bottom: 10px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
             width: 90%;
             display: flex;
             justify-content: space-between;
@@ -183,13 +241,15 @@
             text-align: left;
         }
 
-        .delete-note, .edit-note {
+        .delete-note,
+        .edit-note {
             cursor: pointer;
             width: 20px;
             height: 20px;
         }
 
-        .delete-note:hover, .edit-note:hover {
+        .delete-note:hover,
+        .edit-note:hover {
             opacity: 0.7;
         }
 
@@ -207,12 +267,13 @@
         }
     </style>
 </head>
+
 <body>
 
     <div class="sidebar">
         <div class="logo">
-            <img src="img/google-keep.png" alt="App Logo">
-            <h1>Note Nest</h1>
+            <img src="/static/img/google-keep.png" alt="App Logo">
+            <h1>NoteNest</h1>
         </div>
 
         <a id="notesLink">Notes</a>
@@ -222,9 +283,7 @@
     <div class="main-content">
         <div class="header">
             <input type="text" placeholder="Search">
-            <div>
-                <img src="img/profile-user.png" alt="Profile" style="width: 40px; border-radius: 50%;">
-            </div>
+            <div id="userEmail">{{ email }}</div> <!-- Display user email -->
         </div><br><br>
 
         <div class="note-box" id="noteBox">
@@ -232,13 +291,16 @@
             <textarea id="noteInput" placeholder="Take a note..."></textarea>
             <div class="note-actions">
                 <div class="icons">
-                    <img src="img/notification.png" style="margin-right: 20px;" class="tooltip-icon" id="reminderIcon">
+                    <img src="/static/img/notification.png" style="margin-right: 20px;" class="tooltip-icon"
+                        id="reminderIcon">
                     <span class="tooltip">Add Reminder</span>
-                    <img src="img/writing.png" style="margin-right: 20px;" class="tooltip-icon" id="addNoteIcon">
+                    <img src="/static/img/writing.png" style="margin-right: 20px;" class="tooltip-icon"
+                        id="addNoteIcon">
                     <span class="tooltip">Add Notes</span>
                     <input type="file" id="imageUpload" style="display: none;" accept="image/*">
-                    <img src="img/photo.png" id="addImageIcon" style="margin-right: 20px;" class="tooltip-icon">
-                    <span class="tooltip">Add Image</span>
+                    <!--<img src="/static/img/photo.png" id="addImageIcon" style="margin-right: 20px;" class="tooltip-icon">
+                    <span class="tooltip">Add Image</span> -->
+                    <button id="edit-ok-button" style="display: none;">OK</button>
                 </div>
             </div>
         </div>
@@ -254,8 +316,20 @@
 
     </div>
 
+    <div class="widget-container" id="visualizer-widget">
+        <div class="widget-header" id="widget-header">
+            <h2>Sound Visualizer</h2>
+            <span class="close-btn" onclick="closeWidget()">✕</span>
+        </div>
+
+        <canvas id="visualizer"></canvas>
+        <div class="captions" id="captions">
+            Captions will appear here...
+        </div>
+    </div>
+
     <!-- Include the audio file -->
-    <audio id="reminderAudio" src="alert1.mp3" preload="auto"></audio>
+    <audio id="reminderAudio" src="/static/alert1.mp3" preload="auto"></audio>
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
@@ -265,11 +339,227 @@
             const notesList = document.getElementById('notesList');
             const notesContainer = document.getElementById('notesContainer');
             const emptyState = document.getElementById('emptyState');
-            const imageUpload = document.getElementById('imageUpload');
-            const addImageIcon = document.getElementById('addImageIcon');
             let uploadedImage = '';  // To store the image URL
 
-            let notes = JSON.parse(localStorage.getItem('notes')) || [];
+            let notes = []; // Start with an empty array
+
+            async function fetchNotes() {
+                try {
+                    const response = await fetch('/read');
+                    if (response.ok) {
+                        const data = await response.json();
+                        // Clear the existing notes array
+                        notesList.innerHTML = '';
+                        notes = [];
+
+                        // Iterate over each note in the retrieved data
+                        for (const key in data.notes) {
+                            if (data.notes.hasOwnProperty(key)) {
+                                const note = data.notes[key];
+                                // Create a new note object with title, content, and key
+                                notes.push({
+                                    key: key, // Store the unique key
+                                    title: note.title,
+                                    content: note.content,
+                                });
+                                addNoteToDOM({ key, ...note }); // Add each note to the DOM
+                            }
+                        }
+                    } else {
+                        const errorData = await response.json();
+                        console.error('Error fetching notes:', errorData.message);
+                        // Handle error if needed
+                    }
+                } catch (error) {
+                    console.error('Fetch error:', error);
+                    // Handle fetch error if needed
+                }
+            }
+            // Call fetchNotes to load existing notes
+            fetchNotes();
+
+            // Visualizer and continuous speech-to-text functions
+            const widget = document.getElementById("visualizer-widget");
+            const header = document.getElementById("widget-header");
+            const canvas = document.getElementById("visualizer");
+            const canvasCtx = canvas.getContext("2d");
+            const captionsDiv = document.getElementById('captions');
+
+            let audioContext;
+            let analyser;
+            let dataArray;
+
+            // Start the visualizer
+            function startVisualizer() {
+                if (!navigator.mediaDevices.getUserMedia) {
+                    alert("getUserMedia is not supported by your browser");
+                    return;
+                }
+
+                navigator.mediaDevices.getUserMedia({ audio: true })
+                    .then(stream => {
+                        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                        analyser = audioContext.createAnalyser();
+                        analyser.fftSize = 256;
+
+                        const microphone = audioContext.createMediaStreamSource(stream);
+                        microphone.connect(analyser);
+
+                        const bufferLength = analyser.frequencyBinCount;
+                        dataArray = new Uint8Array(bufferLength);
+
+                        drawVisualizer();
+                    })
+                    .catch(err => {
+                        console.error("Error accessing microphone: " + err);
+                    });
+            }
+
+            function drawVisualizer() {
+                requestAnimationFrame(drawVisualizer);
+                analyser.getByteFrequencyData(dataArray);
+                canvasCtx.clearRect(0, 0, canvas.width, canvas.height);
+                const barWidth = (canvas.width / dataArray.length) * 2.5;
+                let barHeight;
+                let x = 0;
+
+                for (let i = 0; i < dataArray.length; i++) {
+                    barHeight = dataArray[i] / 2;
+                    const red = (barHeight + 100) % 255;
+                    const green = (i * 5) % 255;
+                    const blue = 200;
+
+                    canvasCtx.fillStyle = `rgb(${red},${green},${blue})`;
+                    canvasCtx.fillRect(x, canvas.height - barHeight, barWidth, barHeight);
+                    x += barWidth + 1;
+                }
+            }
+
+            function startListening() {
+                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+                if (SpeechRecognition) {
+                    const recognition = new SpeechRecognition();
+                    recognition.lang = 'en-US';
+                    recognition.interimResults = true;
+                    recognition.continuous = true;
+                    recognition.maxAlternatives = 1;
+
+                    let isCommandMode = false; // Track if in command mode
+
+                    recognition.onstart = () => console.log("Listening...");
+
+                    recognition.onresult = (event) => {
+                        let transcript = Array.from(event.results)
+                            .slice(event.resultIndex)
+                            .map(result => result[0].transcript)
+                            .join('');
+
+                        captionsDiv.innerText = transcript;
+                        console.log("Transcript:", transcript);
+
+                        // Check for the phrase "read notes aloud"
+                        if (transcript.toLowerCase().includes("read notes aloud")) {
+                            isCommandMode = true;
+                            console.log("Command mode activated.");
+                        }
+
+                        // If in command mode, process the command
+                        if (isCommandMode) {
+                            handleCommand(transcript);
+                            isCommandMode = false;
+                        }
+                    };
+
+                    recognition.onerror = (event) => console.error("Speech recognition error:", event.error);
+
+                    recognition.onend = () => {
+                        console.log("Restarting speech recognition...");
+                        recognition.start(); // Restart for continuous listening
+                    };
+
+                    recognition.start();
+                } else {
+                    alert('Speech recognition is not supported in this browser.');
+                }
+            }
+
+            function handleCommand(command) {
+                const lowerCommand = command.toLowerCase();
+
+                if (lowerCommand.includes("read notes aloud")) {
+                    readNotesAloud();
+                } else if (lowerCommand.includes("stop")) {
+                    console.log("Stop command received.");
+                    window.speechSynthesis.cancel(); // Stop any ongoing speech synthesis
+                } else {
+                    console.log("Unrecognized command:", command);
+                }
+            }
+
+            function readNotesAloud() {
+                console.log("Reading notes aloud...");
+
+                const synth = window.speechSynthesis;
+                let notesContent = "Your notes are as follows:";
+
+                const introUtterance = new SpeechSynthesisUtterance(notesContent);
+                synth.speak(introUtterance);
+
+                introUtterance.onend = () => speakNotes(0); // Start reading the notes after the introduction
+            }
+
+            function speakNotes(index) {
+                const synth = window.speechSynthesis;
+
+                if (index < notes.length) {
+                    // Speak note title
+                    const titleUtterance = new SpeechSynthesisUtterance(`Title: ${notes[index].title}.`);
+                    synth.speak(titleUtterance);
+
+                    titleUtterance.onend = () => {
+                        setTimeout(() => {
+                            // Speak note content after a short pause
+                            const contentUtterance = new SpeechSynthesisUtterance(`Content: ${notes[index].content}.`);
+                            synth.speak(contentUtterance);
+
+                            contentUtterance.onend = () => speakNotes(index + 1); // Continue with the next note
+                        }, 500); // 500ms pause
+                    };
+                } else {
+                    console.log("Finished reading notes.");
+                }
+            }
+            // Start visualizer and continuous STT immediately
+            startVisualizer();
+            startListening();
+
+            // Draggable widget functionality
+            let isDragging = false;
+            let offsetX = 0;
+            let offsetY = 0;
+
+            header.addEventListener("mousedown", (e) => {
+                isDragging = true;
+                offsetX = e.clientX - widget.getBoundingClientRect().left;
+                offsetY = e.clientY - widget.getBoundingClientRect().top;
+            });
+
+            document.addEventListener("mousemove", (e) => {
+                if (isDragging) {
+                    widget.style.left = `${e.clientX - offsetX}px`;
+                    widget.style.top = `${e.clientY - offsetY}px`;
+                }
+            });
+
+            document.addEventListener("mouseup", () => {
+                isDragging = false;
+            });
+
+            // Close widget function
+            function closeWidget() {
+                widget.style.display = "none";
+            }
 
             noteBox.addEventListener('click', function () {
                 noteBox.classList.add('expanded');
@@ -287,92 +577,195 @@
                 }
             });
 
-            addImageIcon.addEventListener('click', function () {
-                imageUpload.click();
+            // Get the 'addNoteIcon' element and attach the event listener for creating notes
+            const addNoteIcon = document.getElementById('addNoteIcon');
+            addNoteIcon.addEventListener('click', function () {
+                createNote();  // Call the createNote function when the icon is clicked
             });
 
-            imageUpload.addEventListener('change', function (event) {
-                const file = event.target.files[0];
-                if (file) {
-                    const reader = new FileReader();
-                    reader.onload = function (e) {
-                        uploadedImage = e.target.result;
-                        // Optionally display the image immediately
-                        createNote();
-                    };
-                    reader.readAsDataURL(file);
-                }
-            });
-
-            function createNote() {
+            async function createNote() {
                 const title = noteTitle.value.trim();
                 const content = noteInput.value.trim();
 
-                if (title || content || uploadedImage) {
-                    const note = {
-                        title: title,
-                        content: content,
-                        image: uploadedImage,
-                        date: new Date().toLocaleString(),
-                    };
-                    notes.push(note);
-                    localStorage.setItem('notes', JSON.stringify(notes));
-                    displayNotes();
-                    resetNoteBox();
+                // Validate input
+                if (title === '' && content === '') return;
+
+                const newNote = {
+                    title: title,
+                    content: content,
+                };
+
+                try {
+                    // Send POST request to Flask backend
+                    const response = await fetch('/write_note', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(newNote),
+                    });
+
+                    if (response.ok) {
+                        const responseData = await response.json();
+                        console.log(responseData.message); // Log success message
+
+                        // Fetch the updated list of notes after adding a new one
+                        await fetchNotes(); // Fetch all notes again to refresh the displayed list
+
+                        resetNoteInput(); // Clear input fields
+                        updateEmptyState(); // Update any empty state indicators
+                    } else {
+                        const errorData = await response.json();
+                        console.error('Error saving note:', errorData.message);
+                        // Optionally, show an error message in the UI
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    // Handle fetch error if necessary
                 }
             }
 
-            function displayNotes() {
-                notesList.innerHTML = '';
-                notes.forEach((note, index) => {
-                    const noteItem = document.createElement('div');
-                    noteItem.className = 'note-item';
-                    noteItem.innerHTML = `
-                        <div>
-                            <strong>${note.title || 'Untitled'}</strong><br>
-                            <p>${note.content}</p>
-                            ${note.image ? `<img src="${note.image}" class="note-image" alt="Uploaded Image">` : ''}
-                            <div class="note-date-time">${note.date}</div>
-                        </div>
-                        <div>
-                            <img src="img/delete.png" class="delete-note" data-index="${index}">
-                        </div>
-                    `;
-                    notesList.appendChild(noteItem);
-                });
-
-                if (notes.length > 0) {
-                    notesContainer.style.display = 'block';
-                    emptyState.style.display = 'none';
-                } else {
-                    notesContainer.style.display = 'none';
-                    emptyState.style.display = 'block';
-                }
-            }
-
-            notesList.addEventListener('click', function (event) {
-                if (event.target.classList.contains('delete-note')) {
-                    const index = event.target.getAttribute('data-index');
-                    notes.splice(index, 1);
-                    localStorage.setItem('notes', JSON.stringify(notes));
-                    displayNotes();
-                }
-            });
-
-            function resetNoteBox() {
+            function resetNoteInput() {
                 noteTitle.value = '';
                 noteInput.value = '';
-                uploadedImage = '';  // Reset the uploaded image
-                imageUpload.value = '';  // Clear the input for the image
+                uploadedImage = '';
                 noteBox.classList.remove('expanded');
                 noteTitle.style.display = 'none';
                 noteInput.style.height = '40px';
                 document.querySelector('.note-actions').style.display = 'none';
             }
 
-            displayNotes();  // Load notes on page load
-        });
-    </script>
+            function addNoteToDOM(note) {
+                console.log('Adding note to DOM:', note); // Log the note object for debugging
 
+                const noteItem = document.createElement('div');
+                noteItem.className = 'note-item';
+
+                noteItem.innerHTML = `
+        <div>
+            <div class="note-title">${note.title}</div>
+            <div class="note-content">${note.content}</div>
+        </div>
+        <div class="note-actions">
+            <button class="edit-note" onclick="editNote('${note.key}')">
+                <img src="/static/img/edit.png" alt="Edit">
+            </button>
+            <button class="delete-note" onclick="deleteNote('${note.key}')">
+                <img src="/static/img/delete.png" alt="Delete">
+            </button>
+        </div>
+    `;
+
+                notesList.appendChild(noteItem);
+                notesContainer.style.display = 'block';
+                emptyState.style.display = 'none';
+            }
+
+
+            function updateEmptyState() {
+                if (notes.length === 0) {
+                    notesContainer.style.display = 'none';
+                    emptyState.style.display = 'block';
+                }
+            }
+
+            // Image Upload Handling
+            const imageUpload = document.getElementById('imageUpload');
+            imageUpload.addEventListener('change', function (event) {
+                const file = event.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function (e) {
+                        uploadedImage = e.target.result;  // Store the image URL
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+
+            // Load existing notes on page load
+            notes.forEach(note => addNoteToDOM(note));
+
+            window.editNote = function (key) {
+                // Find the note in the existing notes array
+                const noteToEdit = notes.find(note => note.key === key);
+
+                if (noteToEdit) {
+                    // Fill the note box with the existing title and content
+                    const noteTitle = document.getElementById('noteTitle');
+                    const noteInput = document.getElementById('noteInput');
+                    const noteBox = document.getElementById('noteBox');
+                    const editOkButton = document.getElementById('edit-ok-button');
+
+                    noteTitle.value = noteToEdit.title;
+                    noteInput.value = noteToEdit.content;
+
+                    // Show the note box and OK button
+                    noteBox.classList.add('expanded');
+                    editOkButton.style.display = 'block';
+
+                    // When the OK button is clicked, trigger the update
+                    editOkButton.onclick = async function () {
+                        // Send a PUT request to update the note
+                        try {
+                            const response = await fetch(`/update_note/${key}`, {
+                                method: 'PUT',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                },
+                                body: JSON.stringify({
+                                    title: noteTitle.value,
+                                    content: noteInput.value,
+                                }),
+                            });
+
+                            if (response.ok) {
+                                const responseData = await response.json();
+                                console.log(responseData.message); // Log success message
+
+                                // Hide the OK button after the update
+                                editOkButton.style.display = 'none';
+                                await fetchNotes(); // Refresh the notes list
+                                resetNoteInput()
+                                updateEmptyState();
+                            } else {
+                                const errorData = await response.json();
+                                console.error('Error updating note:', errorData.message);
+                                resetNoteInput()
+                                updateEmptyState();
+                            }
+                        } catch (error) {
+                            console.error('Error:', error);
+                        }
+                    };
+                }
+            };
+            // Function to delete a note
+            window.deleteNote = async function (key) {
+                // Confirm deletion with the user
+                if (confirm('Are you sure you want to delete this note?')) {
+                    try {
+                        const response = await fetch(`/delete_note/${key}`, {
+                            method: 'DELETE',
+                        });
+
+                        if (response.ok) {
+                            const responseData = await response.json();
+                            console.log(responseData.message); // Log success message  
+                            await fetchNotes(); // Refresh the notes list
+                        } else {
+                            const errorData = await response.json();
+                            console.error('Error deleting note:', errorData.message);
+                        }
+                    } catch (error) {
+                        console.error('Error:', error);
+                    }
+                }
+            };
+        });
+
+
+
+    </script>
 </body>
+
 </html>
