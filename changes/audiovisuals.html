@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ambient Sound Visualizer with Continuous STT</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f0f0f0;
+    }
+    /* Widget container style */
+    .widget-container {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      width: 300px;
+      height: 250px;
+      background: rgba(0, 0, 0, 0.7);
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      color: white;
+      overflow: hidden;
+      cursor: move;
+      z-index: 1000;
+    }
+    /* Title bar for dragging */
+    .widget-header {
+      background-color: #333;
+      padding: 10px;
+      cursor: move;
+      text-align: center;
+    }
+    .widget-header h2 {
+      font-size: 16px;
+      margin: 0;
+    }
+    /* Canvas for visualizer */
+    canvas {
+      width: 100%;
+      height: 150px;
+      border: 0;
+    }
+    /* Close button */
+    .close-btn {
+      position: absolute;
+      top: 5px;
+      right: 10px;
+      color: white;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    /* Real-time captions */
+    .captions {
+      padding: 10px;
+      font-size: 14px;
+      color: #00ff00;
+      background: #111;
+    }
+  </style>
+</head>
+<body>
+  <!-- Visualizer Widget -->
+  <div class="widget-container" id="visualizer-widget">
+    <div class="widget-header" id="widget-header">
+      <h2>Sound Visualizer</h2>
+      <span class="close-btn" onclick="closeWidget()">✕</span>
+    </div>
+
+    <canvas id="visualizer"></canvas>
+    <div class="captions" id="captions">
+      Captions will appear here...
+    </div>
+  </div>
+
+  <script>
+    const widget = document.getElementById("visualizer-widget");
+    const header = document.getElementById("widget-header");
+    const canvas = document.getElementById("visualizer");
+    const canvasCtx = canvas.getContext("2d");
+    const captionsDiv = document.getElementById('captions');
+
+    let audioContext;
+    let analyser;
+    let dataArray;
+
+    // Start the visualizer function
+    function startVisualizer() {
+      if (!navigator.mediaDevices.getUserMedia) {
+        alert("getUserMedia is not supported by your browser");
+        return;
+      }
+
+      navigator.mediaDevices.getUserMedia({ audio: true })
+        .then(stream => {
+          audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
+          analyser = audioContext.createAnalyser();
+          analyser.fftSize = 256;
+
+          const microphone = audioContext.createMediaStreamSource(stream);
+          microphone.connect(analyser);
+
+          const bufferLength = analyser.frequencyBinCount;
+          dataArray = new Uint8Array(bufferLength);
+
+          drawVisualizer();
+        })
+        .catch(err => {
+          console.error("Error accessing microphone: " + err);
+        });
+    }
+
+    function drawVisualizer() {
+      requestAnimationFrame(drawVisualizer);
+
+      analyser.getByteFrequencyData(dataArray);
+
+      canvasCtx.clearRect(0, 0, canvas.width, canvas.height);
+      const barWidth = (canvas.width / dataArray.length) * 2.5;
+      let barHeight;
+      let x = 0;
+
+      for (let i = 0; i < dataArray.length; i++) {
+        barHeight = dataArray[i] / 2;
+        const red = (barHeight + 100) % 255;
+        const green = (i * 5) % 255;
+        const blue = 200;
+
+        canvasCtx.fillStyle = `rgb(${red},${green},${blue})`;
+        canvasCtx.fillRect(x, canvas.height - barHeight, barWidth, barHeight);
+        x += barWidth + 1;
+      }
+    }
+
+    // Continuous Speech-to-Text functionality
+    function startListening() {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+      if (SpeechRecognition) {
+        const recognition = new SpeechRecognition();
+        recognition.lang = 'en-US'; 
+        recognition.interimResults = true;  // Set to true to get real-time partial results
+        recognition.continuous = true;      // Continue listening for speech
+        recognition.maxAlternatives = 1;
+
+        recognition.onstart = () => {
+          console.log("Listening continuously for speech...");
+        };
+
+        recognition.onresult = (event) => {
+          let transcript = '';
+          for (let i = event.resultIndex; i < event.results.length; i++) {
+            transcript += event.results[i][0].transcript;
+          }
+          captionsDiv.innerText = transcript;  // Display continuous captions
+          console.log("Transcript:", transcript);
+        };
+
+        recognition.onerror = (event) => {
+          console.error("Speech recognition error detected: " + event.error);
+        };
+
+        recognition.onend = () => {
+          console.log("Speech recognition ended. Restarting...");
+          recognition.start();  // Restart the recognition for continuous listening
+        };
+
+        recognition.start();  // Start listening continuously
+      } else {
+        alert('Speech recognition is not supported in this browser.');
+      }
+    }
+
+    // Start visualizer and continuous STT immediately on page load
+    window.onload = function() {
+      startVisualizer();
+      startListening();  // Start speech recognition continuously
+    };
+
+    // Draggable widget functionality
+    let isDragging = false;
+    let offsetX = 0;
+    let offsetY = 0;
+
+    header.addEventListener("mousedown", (e) => {
+      isDragging = true;
+      offsetX = e.clientX - widget.getBoundingClientRect().left;
+      offsetY = e.clientY - widget.getBoundingClientRect().top;
+    });
+
+    document.addEventListener("mousemove", (e) => {
+      if (isDragging) {
+        widget.style.left = `${e.clientX - offsetX}px`;
+        widget.style.top = `${e.clientY - offsetY}px`;
+      }
+    });
+
+    document.addEventListener("mouseup", () => {
+      isDragging = false;
+    });
+
+    // Close widget function
+    function closeWidget() {
+      widget.style.display = "none";
+    }
+  </script>
+</body>
+</html>
